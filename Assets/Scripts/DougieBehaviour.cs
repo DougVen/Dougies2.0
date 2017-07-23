@@ -5,8 +5,8 @@ using UnityEngine;
 
 public class DougieBehaviour : NetworkBehaviour {
 
-	private Rigidbody2D rigidbody;
-	private Transform transform;
+	public Rigidbody2D rigidbody;
+	public Transform transform;
 	public Collider2D feet;
 	private DougieAttributes attributes;
 	private DougieStates states;
@@ -88,12 +88,27 @@ public class DougieBehaviour : NetworkBehaviour {
 			rigidbody.velocity = new Vector2 (0, rigidbody.velocity.y);
 	}
 
+	void ChangeDirection ()
+	{
+		if (states.left && rigidbody.velocity.x > 0 || states.right && rigidbody.velocity.x < 0) 
+			rigidbody.velocity = new Vector2 (rigidbody.velocity.x/1.25f, rigidbody.velocity.y);
+	}
+
 	void SetHorizontalForce()
 	{
-		if (states.left)
-			rigidbody.velocity = new Vector2 (attributes.horizontalSpeed * -1, rigidbody.velocity.y);
-		else if (states.right)
-			rigidbody.velocity = new Vector2 (attributes.horizontalSpeed, rigidbody.velocity.y);
+		Debug.Log (rigidbody.velocity.x);
+		if (states.isMovingHorizontally()) {
+			ChangeDirection();
+
+			float x = states.left ? attributes.horizontalMovingForce * -1 : attributes.horizontalMovingForce;
+			rigidbody.AddForce (new Vector2(x, 0));
+
+			if (Mathf.Abs (rigidbody.velocity.x) > attributes.horizontalSpeedLimit) {
+				Debug.Log ("checkpoint");		
+				float speed = rigidbody.velocity.x > 0 ? attributes.horizontalSpeedLimit : attributes.horizontalSpeedLimit * -1;
+				rigidbody.velocity = new Vector2 (speed, rigidbody.velocity.y);
+			}
+		}
 		else {
 			Stop (); 
 		}
@@ -114,10 +129,9 @@ public class DougieBehaviour : NetworkBehaviour {
 	[Command]
 	void CmdFlip(){
 		if(!states.goingLeft)
-		SpriteRot = Quaternion.Euler(0,0, 0);
-
+			SpriteRot = Quaternion.Euler(0,0, 0);
 		else
-		SpriteRot = Quaternion.Euler(0,180, 0);
+			SpriteRot = Quaternion.Euler(0,180, 0);
 	}
 
 

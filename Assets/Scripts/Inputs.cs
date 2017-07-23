@@ -33,11 +33,7 @@ public class Inputs : NetworkBehaviour
 		if(!states.right)
 		states.left = Input.GetKey(left_Joy);
 
-		if(states.left)
-		states.goingLeft=states.left;
 
-		if(states.right)
-		states.goingLeft=!states.right;
 	}
 	
 	// Update is called once per frame

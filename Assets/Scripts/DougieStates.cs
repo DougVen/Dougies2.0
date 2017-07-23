@@ -2,6 +2,12 @@
 using UnityEngine;
 
 public class DougieStates : NetworkBehaviour {
+	
+	public bool isMovingHorizontally ()
+	{
+		return left || right;
+	}
+
 	[SyncVar]
 	public  bool right = false,
 				 left = false,

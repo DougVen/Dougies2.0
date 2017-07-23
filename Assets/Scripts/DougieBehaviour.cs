@@ -67,9 +67,6 @@ public class DougieBehaviour : NetworkBehaviour {
 	}
 
 	void Jump(){
-		
-		LimitFallingForce();
-
 		if (!states.goingUp)
 			return;
 		
@@ -83,15 +80,28 @@ public class DougieBehaviour : NetworkBehaviour {
 			rigidbody.velocity = new Vector2 (rigidbody.velocity.x, fallingForceLimit);
 	}
 
-	void Move(){
-
-		if (states.left)
-			rigidbody.velocity = new Vector2(attributes.horizontalSpeed*-1,rigidbody.velocity.y);	
-		else if(states.right)
-			rigidbody.velocity = new Vector2(attributes.horizontalSpeed,  rigidbody.velocity.y);
+	void Stop ()
+	{
+		if (Mathf.Abs (rigidbody.velocity.x) > 0.35f)
+			rigidbody.AddForce (new Vector2 (rigidbody.velocity.x * -1.25f, 0));
 		else
-			rigidbody.velocity = new Vector2(0,  rigidbody.velocity.y);
-		
+			rigidbody.velocity = new Vector2 (0, rigidbody.velocity.y);
+	}
+
+	void SetHorizontalForce()
+	{
+		if (states.left)
+			rigidbody.velocity = new Vector2 (attributes.horizontalSpeed * -1, rigidbody.velocity.y);
+		else if (states.right)
+			rigidbody.velocity = new Vector2 (attributes.horizontalSpeed, rigidbody.velocity.y);
+		else {
+			Stop (); 
+		}
+	}
+
+	void Move(){
+		SetHorizontalForce ();
+		LimitFallingForce();
 	}
 
 	 [SyncVar(hook = "UpdateFlip")] public Quaternion SpriteRot;

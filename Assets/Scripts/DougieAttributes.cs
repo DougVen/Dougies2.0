@@ -9,9 +9,10 @@ public class DougieAttributes : NetworkBehaviour {
 	public float hp = 3;
 	public Vector2 floatingBaseForce;
   	public float verticalSpeedLimit = 5f,
-                 horizontalSpeed = 5f,
+                 horizontalSpeed = 4f,
                  horizontalSpeedTaco = 0.0f,
                  tacoFireRate = 0.8f,
+				 horizontalStoppingForce = 0.5f,
   	             nextTacoShot = 0;
 
 	void Start () {

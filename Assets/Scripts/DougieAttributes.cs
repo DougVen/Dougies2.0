@@ -10,7 +10,7 @@ public class DougieAttributes : NetworkBehaviour {
   	public float verticalSpeedLimit = 5f,
 				 horizontalSpeedLimit = 6f,
                  horizontalSpeed = 4f,
-                 horizontalSpeedTaco = 0.0f,
+                 horizontalSpeedTaco = 9f,
                  tacoFireRate = 0.8f,
 				 horizontalStoppingForce = 0.5f,
 				 horizontalMovingForce = 5f,

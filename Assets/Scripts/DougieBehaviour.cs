@@ -13,7 +13,8 @@ public class DougieBehaviour : NetworkBehaviour {
 
 	 public Animator balloons;
 	 public  GameObject taco;
-	  [SyncVar]
+
+	 [SyncVar]
 	 public int Balloon_Life = 3;
 
 	// Use this for initialization
@@ -29,22 +30,17 @@ public class DougieBehaviour : NetworkBehaviour {
 		attributes = GetComponent<DougieAttributes>();
 		rigidbody  = GetComponent<Rigidbody2D>();
 	}
-
-	void FixedUpdate () {
-		
-
-	}
 	
 	// Update is called once per frame
+	[Client]
 	void Update () {
-		if (!isLocalPlayer)
-		return;
-
+		
 		Move();
 		Jump();
-		CmdFlip();
+		Flip();
+
 		if(states.shooting)
-		CmdShoot();
+			CmdShoot();
 	}
 
 	Vector2 GetUpwardForce ()
@@ -115,6 +111,12 @@ public class DougieBehaviour : NetworkBehaviour {
 	void Move(){
 		SetHorizontalForce ();
 		LimitFallingForce();
+
+		if (states.left)
+			states.goingLeft = true;
+
+		if (states.right)
+			states.goingLeft = false;
 	}
 
 	 [SyncVar(hook = "UpdateFlip")] public Quaternion SpriteRot;
@@ -124,8 +126,8 @@ public class DougieBehaviour : NetworkBehaviour {
          transform.localRotation = SpriteRot;
      }
 
-	[Command]
-	void CmdFlip(){
+
+	void Flip(){
 		if(!states.goingLeft)
 			SpriteRot = Quaternion.Euler(0,0, 0);
 		else
@@ -147,17 +149,21 @@ public class DougieBehaviour : NetworkBehaviour {
 		float horizontalProjectileOffset = 0.77f;
 		Vector3 offset;
 		if(!states.goingLeft)
-				offset = transform.position + new Vector3(horizontalProjectileOffset,0,0);
+			offset = transform.position + new Vector3(horizontalProjectileOffset,0,0);
 		else
-				offset = transform.position + new Vector3(horizontalProjectileOffset*-1,0,0);
+			offset = transform.position + new Vector3(horizontalProjectileOffset*-1,0,0);
 
 		GameObject tacoProjectile = (GameObject)Instantiate(taco,offset,transform.rotation);
 		tacoProjectile.GetComponent<Transform>().Rotate(0,180,0);
+
 
 		if(!states.goingLeft)
 			tacoProjectile.GetComponent<Rigidbody2D>().velocity = new Vector2(attributes.horizontalSpeedTaco,0);
 		else
 			tacoProjectile.GetComponent<Rigidbody2D>().velocity = new Vector2(attributes.horizontalSpeedTaco*-1,0);
+		
+		NetworkServer.Spawn (tacoProjectile);
+		Destroy(tacoProjectile, 0.75f);
 	}
 
 	 void OnCollisionExit2D(Collision2D coll) {
@@ -184,8 +190,5 @@ public class DougieBehaviour : NetworkBehaviour {
 	//	Instantiate(balloon, new Vector3 (transform.position.x, transform.position.y + 1, 0), Quaternion.identity);
 		if(attributes.hp == 0)
 			Destroy(gameObject);
-	}
-
-
-  
+	}  
 }

@@ -23,21 +23,16 @@ public class Inputs : NetworkBehaviour
 
 	
 	public void refreshStates(){
+		
 		states.goingUp 	= Input.GetKey(up_Joy);
-
 		states.shooting =  Input.GetKey(fire_Joy);
 
 		if (!states.left) {
 			states.right = Input.GetKey(right_Joy);
-			if (states.right)
-				states.goingLeft = false;
-				
 		}
 
 		if (!states.right) {
 			states.left = Input.GetKey(left_Joy);
-			if (states.left)
-				states.goingLeft = true;
 		}
 	}
 	
@@ -48,7 +43,5 @@ public class Inputs : NetworkBehaviour
 			return;
 
 		refreshStates();
-
-		
 	}
 }

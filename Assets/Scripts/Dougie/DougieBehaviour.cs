@@ -33,8 +33,10 @@ public class DougieBehaviour : NetworkBehaviour {
 	{
 		if(Time.time < attributes.nextTacoShot)
 			return;
-		
-		float horizontalOffset =  0.77f;
+
+		Bounds bounds = GetComponent<SpriteRenderer> ().bounds;
+		var horizontalOffset =  bounds.size.x;
+
 		float speed = attributes.horizontalSpeedTaco;
 
 		if (states.goingLeft) {
@@ -42,7 +44,7 @@ public class DougieBehaviour : NetworkBehaviour {
 			speed *= -1;
 		}
 
-		Vector3 offset = transform.position + new Vector3 (horizontalOffset, 0, 0);
+		Vector3 offset = bounds.center + new Vector3 (horizontalOffset, 0, 0);
 		Vector2 velocity = new Vector2 (speed, 0);
 		
 		CmdShoot (offset, velocity);

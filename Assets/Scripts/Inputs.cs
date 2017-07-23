@@ -27,7 +27,6 @@ public class Inputs : NetworkBehaviour
 
 		states.shooting =  Input.GetKey(fire_Joy);
 
-
 		if(!states.left)
 		states.right = Input.GetKey(right_Joy);
 

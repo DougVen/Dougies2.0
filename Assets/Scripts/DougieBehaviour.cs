@@ -47,28 +47,51 @@ public class DougieBehaviour : NetworkBehaviour {
 		CmdShoot();
 	}
 
+	Vector2 GetUpwardForce ()
+	{
+		float y = rigidbody.velocity.y;
+
+		if (y < 0)
+			y = 0;
+		
+		float delta = attributes.verticalSpeedLimit - y;
+		return new Vector2 (0, attributes.floatingBaseForce.y + (delta / 5) * 2);
+	}
+
+	void SetVerticalForce ()
+	{
+		
+		rigidbody.AddForce (GetUpwardForce());
+		if (rigidbody.velocity.y >= attributes.verticalSpeedLimit)
+			rigidbody.velocity = new Vector2(rigidbody.velocity.x, attributes.verticalSpeedLimit);
+	}
+
 	void Jump(){
-		if(!states.onair)
-			if (states.goingUp)
-				if(rigidbody.velocity.y  <= attributes.verticalSpeedLimit)
-						rigidbody.AddForce(attributes.floatingForce);
-						
+		
+		LimitFallingForce();
+
+		if (!states.goingUp)
+			return;
+		
+		SetVerticalForce ();		
+	}
+
+	void LimitFallingForce ()
+	{
+		float fallingForceLimit = attributes.verticalSpeedLimit * -2f;
+		if (rigidbody.velocity.y <= fallingForceLimit)
+			rigidbody.velocity = new Vector2 (rigidbody.velocity.x, fallingForceLimit);
 	}
 
 	void Move(){
-		// X axis displacement
-		if (states.left){
-			rigidbody.velocity = new Vector2(attributes.horizontalSpeed*-1,rigidbody.velocity.y);
-			
-		}
 
-		else if(states.right){
+		if (states.left)
+			rigidbody.velocity = new Vector2(attributes.horizontalSpeed*-1,rigidbody.velocity.y);	
+		else if(states.right)
 			rigidbody.velocity = new Vector2(attributes.horizontalSpeed,  rigidbody.velocity.y);
-			}
 		else
 			rigidbody.velocity = new Vector2(0,  rigidbody.velocity.y);
-
-
+		
 	}
 
 	 [SyncVar(hook = "UpdateFlip")] public Quaternion SpriteRot;

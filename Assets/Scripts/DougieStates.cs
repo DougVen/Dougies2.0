@@ -8,7 +8,6 @@ public class DougieStates : NetworkBehaviour {
 		return left || right;
 	}
 
-	[SyncVar]
 	public  bool right = false,
 				 left = false,
 				 goingUp = false,

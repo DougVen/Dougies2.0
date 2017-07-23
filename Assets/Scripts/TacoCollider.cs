@@ -21,7 +21,6 @@ public class TacoCollider : NetworkBehaviour {
 			if(collision.gameObject.tag == "Player"||collision.gameObject.tag == "Platform")
 			{
 				Destroy(gameObject);
-
 			}
 	}
 }

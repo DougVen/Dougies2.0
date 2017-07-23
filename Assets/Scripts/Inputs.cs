@@ -6,22 +6,13 @@ using UnityEngine.Networking;
 public class Inputs : NetworkBehaviour 
 {
 
-	// Use this for initialization
-	public KeyCode 
-                 up_Joy,
+	public KeyCode up_Joy,
                  right_Joy,
                  left_Joy,
                  fire_Joy;
 
     public DougieStates states;
-
     private bool moving;
-
-	void Start () {
-		
-	}
-
-	
 	public void refreshStates(){
 		
 		states.goingUp 	= Input.GetKey(up_Joy);
@@ -41,6 +32,12 @@ public class Inputs : NetworkBehaviour
 
 		if(!isLocalPlayer)
 			return;
+		
+		if (states.left)
+			states.goingLeft = true;
+
+		if (states.right)
+			states.goingLeft = false;
 
 		refreshStates();
 	}

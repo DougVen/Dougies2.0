@@ -5,24 +5,22 @@ using UnityEngine;
 
 public class DougieBehaviour : NetworkBehaviour {
 
+	public Quaternion SpriteRot;
 	public Rigidbody2D rigidbody;
 	public Transform transform;
 	public Collider2D feet;
 	private DougieAttributes attributes;
 	private DougieStates states;
+	public Animator balloons;
+	public GameObject taco;
 
-	 public Animator balloons;
-	 public  GameObject taco;
+	public Vector3 position;
 
-	 [SyncVar]
-	 public int Balloon_Life = 3;
-
-	// Use this for initialization
+	public int Balloon_Life = 3;
 
 	void Awake(){
 		transform  = GetComponent<Transform>();
 		rigidbody  = GetComponent<Rigidbody2D>();
-
 	}
 
 	void Start () {
@@ -30,17 +28,49 @@ public class DougieBehaviour : NetworkBehaviour {
 		attributes = GetComponent<DougieAttributes>();
 		rigidbody  = GetComponent<Rigidbody2D>();
 	}
-	
-	// Update is called once per frame
-	[Client]
-	void Update () {
+
+	void Shoot ()
+	{
+		if(Time.time < attributes.nextTacoShot)
+			return;
 		
+		float horizontalOffset =  0.77f;
+		float speed = attributes.horizontalSpeedTaco;
+
+		if (states.goingLeft) {
+			horizontalOffset *= -1;
+			speed *= -1;
+		}
+
+		Vector3 offset = transform.position + new Vector3 (horizontalOffset, 0, 0);
+		Vector2 velocity = new Vector2 (speed, 0);
+		
+		CmdShoot (offset, velocity);
+
+		attributes.nextTacoShot = Time.time + attributes.tacoFireRate;
+		states.shooting = false;
+	}
+
+	[Command]
+	void CmdShoot(Vector3 position, Vector2 velocity){
+		var gameObject = Instantiate (taco, position, Quaternion.identity);
+		gameObject.GetComponent<Rigidbody2D> ().velocity = new Vector2(velocity.x, velocity.y);
+		NetworkServer.Spawn(gameObject);
+		Destroy (gameObject, 1f);
+	}
+
+	void Update () {
+
+		if (!isLocalPlayer)
+			return;
+
 		Move();
 		Jump();
 		Flip();
 
-		if(states.shooting)
-			CmdShoot();
+		if (states.shooting) 
+			Shoot ();
+		position = transform.position;
 	}
 
 	Vector2 GetUpwardForce ()
@@ -111,60 +141,16 @@ public class DougieBehaviour : NetworkBehaviour {
 	void Move(){
 		SetHorizontalForce ();
 		LimitFallingForce();
-
-		if (states.left)
-			states.goingLeft = true;
-
-		if (states.right)
-			states.goingLeft = false;
 	}
-
-	 [SyncVar(hook = "UpdateFlip")] public Quaternion SpriteRot;
-	
-	 void UpdateFlip(Quaternion NewPos)
-     {
-         transform.localRotation = SpriteRot;
-     }
-
 
 	void Flip(){
-		if(!states.goingLeft)
-			SpriteRot = Quaternion.Euler(0,0, 0);
+		if(states.goingLeft)
+			transform.rotation = Quaternion.Euler(0,180, 0);
 		else
-			SpriteRot = Quaternion.Euler(0,180, 0);
+			transform.rotation = Quaternion.Euler(0,0, 0);
 	}
 
 
-	[Command]
-	void CmdShoot(){
-		//check if taco shooting cooldown is off, else to do nothing
-		if(Time.time < attributes.nextTacoShot)
-				return;
-		states.shooting = false;
-		//Set time for next taco shot
-		attributes.nextTacoShot = Time.time + attributes.tacoFireRate;
-
-		//set projectiles properties before instantiation
-		// Position, Rotation, etc.
-		float horizontalProjectileOffset = 0.77f;
-		Vector3 offset;
-		if(!states.goingLeft)
-			offset = transform.position + new Vector3(horizontalProjectileOffset,0,0);
-		else
-			offset = transform.position + new Vector3(horizontalProjectileOffset*-1,0,0);
-
-		GameObject tacoProjectile = (GameObject)Instantiate(taco,offset,transform.rotation);
-		tacoProjectile.GetComponent<Transform>().Rotate(0,180,0);
-
-
-		if(!states.goingLeft)
-			tacoProjectile.GetComponent<Rigidbody2D>().velocity = new Vector2(attributes.horizontalSpeedTaco,0);
-		else
-			tacoProjectile.GetComponent<Rigidbody2D>().velocity = new Vector2(attributes.horizontalSpeedTaco*-1,0);
-		
-		NetworkServer.Spawn (tacoProjectile);
-		Destroy(tacoProjectile, 0.75f);
-	}
 
 	 void OnCollisionExit2D(Collision2D coll) {
 	  	if(coll.gameObject.tag=="Platform")
@@ -182,8 +168,9 @@ public class DougieBehaviour : NetworkBehaviour {
          	CmdReceiveDamage();
         
     }
+
 	[Command]
-    	public void CmdReceiveDamage(){
+    public void CmdReceiveDamage(){
 		attributes.hp -= 1;
 		Balloon_Life -= 1;
         balloons.SetInteger("Balloon_Life", Balloon_Life);

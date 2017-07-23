@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 
-public class DougieAttributes : NetworkBehaviour {
+public class DougieAttributes : MonoBehaviour {
 
 	public float hp = 3;
 	public Vector2 floatingBaseForce;

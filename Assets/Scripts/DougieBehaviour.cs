@@ -108,7 +108,7 @@ public class DougieBehaviour : NetworkBehaviour {
 
 	void Stop ()
 	{
-		if (Mathf.Abs (rigidbody.velocity.x) > 0.35f)
+		if (Mathf.Abs (rigidbody.velocity.x) > 0.25f)
 			rigidbody.AddForce (new Vector2 (rigidbody.velocity.x * -1.25f, 0));
 		else
 			rigidbody.velocity = new Vector2 (0, rigidbody.velocity.y);
@@ -133,9 +133,9 @@ public class DougieBehaviour : NetworkBehaviour {
 				rigidbody.velocity = new Vector2 (speed, rigidbody.velocity.y);
 			}
 		}
-		else {
+		else 
 			Stop (); 
-		}
+		
 	}
 
 	void Move(){
@@ -149,8 +149,6 @@ public class DougieBehaviour : NetworkBehaviour {
 		else
 			transform.rotation = Quaternion.Euler(0,0, 0);
 	}
-
-
 
 	 void OnCollisionExit2D(Collision2D coll) {
 	  	if(coll.gameObject.tag=="Platform")

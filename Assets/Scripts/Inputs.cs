@@ -27,13 +27,18 @@ public class Inputs : NetworkBehaviour
 
 		states.shooting =  Input.GetKey(fire_Joy);
 
-		if(!states.left)
-		states.right = Input.GetKey(right_Joy);
+		if (!states.left) {
+			states.right = Input.GetKey(right_Joy);
+			if (states.right)
+				states.goingLeft = false;
+				
+		}
 
-		if(!states.right)
-		states.left = Input.GetKey(left_Joy);
-
-
+		if (!states.right) {
+			states.left = Input.GetKey(left_Joy);
+			if (states.left)
+				states.goingLeft = true;
+		}
 	}
 	
 	// Update is called once per frame

@@ -88,23 +88,21 @@ public class DougieBehaviour : NetworkBehaviour {
 			rigidbody.velocity = new Vector2 (0, rigidbody.velocity.y);
 	}
 
-	void ChangeDirection ()
+	 void ChangeDirection ()
 	{
-		if (states.left && rigidbody.velocity.x > 0 || states.right && rigidbody.velocity.x < 0) 
-			rigidbody.velocity = new Vector2 (rigidbody.velocity.x/1.25f, rigidbody.velocity.y);
+		if (states.left && rigidbody.velocity.x > 3 || states.right && rigidbody.velocity.x < -3) 
+			rigidbody.velocity = new Vector2 (rigidbody.velocity.x * 0.95f, rigidbody.velocity.y);
 	}
 
 	void SetHorizontalForce()
 	{
-		Debug.Log (rigidbody.velocity.x);
 		if (states.isMovingHorizontally()) {
-			ChangeDirection();
+			ChangeDirection ();
 
 			float x = states.left ? attributes.horizontalMovingForce * -1 : attributes.horizontalMovingForce;
 			rigidbody.AddForce (new Vector2(x, 0));
 
 			if (Mathf.Abs (rigidbody.velocity.x) > attributes.horizontalSpeedLimit) {
-				Debug.Log ("checkpoint");		
 				float speed = rigidbody.velocity.x > 0 ? attributes.horizontalSpeedLimit : attributes.horizontalSpeedLimit * -1;
 				rigidbody.velocity = new Vector2 (speed, rigidbody.velocity.y);
 			}

@@ -8,7 +8,7 @@ public class DougieAttributes : NetworkBehaviour {
 	public float hp = 3;
 	public Vector2 floatingBaseForce;
   	public float verticalSpeedLimit = 5f,
-				 horizontalSpeedLimit = 1f,
+				 horizontalSpeedLimit = 6f,
                  horizontalSpeed = 4f,
                  horizontalSpeedTaco = 0.0f,
                  tacoFireRate = 0.8f,

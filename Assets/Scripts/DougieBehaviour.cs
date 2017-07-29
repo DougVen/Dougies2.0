@@ -56,7 +56,6 @@ public class DougieBehaviour : NetworkBehaviour {
 		var gameObject = Instantiate (taco, position, Quaternion.identity);
 		gameObject.GetComponent<Rigidbody2D> ().velocity = new Vector2(velocity.x, velocity.y);
 		NetworkServer.Spawn(gameObject);
-		Destroy (gameObject, 1f);
 	}
 
 	void Update () {

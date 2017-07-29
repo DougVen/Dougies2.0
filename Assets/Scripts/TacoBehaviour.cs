@@ -6,8 +6,21 @@ using UnityEngine.Networking;
 public class TacoBehaviour : NetworkBehaviour {
 	public	float start = 0f;
 	public float lifespan = 0.25f;
+	public GameObject explosion;
+	public float despawnTime;
 
 	void Start () {
 		start = Time.time;
+		Invoke ("Despawn", despawnTime);
+	}
+
+	void Despawn() {
+		Destroy (gameObject);
+		var position = this.transform.position;
+		var explosionInstance = Instantiate (explosion, position, Quaternion.identity);
+	}
+
+	void OnCollisionEnter2D(Collision2D collision) {
+		Despawn ();
 	}
 }

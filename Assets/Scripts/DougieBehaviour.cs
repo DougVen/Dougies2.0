@@ -13,20 +13,24 @@ public class DougieBehaviour : NetworkBehaviour {
 	private DougieStates states;
 	public Animator balloons;
 	public GameObject taco;
-
 	public Vector3 position;
+	private PlayerId _playerId;
+
+	private NetworkIdentity _networkIdentity;
 
 	public int Balloon_Life = 3;
 
 	void Awake(){
-		transform  = GetComponent<Transform>();
-		rigidbody  = GetComponent<Rigidbody2D>();
+		transform = GetComponent<Transform>();
+		rigidbody = GetComponent<Rigidbody2D>();
 	}
 
 	void Start () {
-		states	   = GetComponent<DougieStates>();
-		attributes = GetComponent<DougieAttributes>();
-		rigidbody  = GetComponent<Rigidbody2D>();
+		_playerId = GetComponent<PlayerId> ();
+		states = GetComponent<DougieStates>();
+		attributes= GetComponent<DougieAttributes>();
+		rigidbody = GetComponent<Rigidbody2D>();
+		_networkIdentity = GetComponent<NetworkIdentity> ();
 	}
 
 	void Shoot ()
@@ -44,18 +48,19 @@ public class DougieBehaviour : NetworkBehaviour {
 
 		Vector3 offset = transform.position + new Vector3 (horizontalOffset, 0, 0);
 		Vector2 velocity = new Vector2 (speed, 0);
-		
-		CmdShoot (offset, velocity);
 
+		CmdShoot (offset, velocity, _playerId.Value);
 		attributes.nextTacoShot = Time.time + attributes.tacoFireRate;
 		states.shooting = false;
 	}
 
 	[Command]
-	void CmdShoot(Vector3 position, Vector2 velocity){
+	void CmdShoot(Vector3 position, Vector2 velocity, string id){
 		var gameObject = Instantiate (taco, position, Quaternion.identity);
 		gameObject.GetComponent<Rigidbody2D> ().velocity = new Vector2(velocity.x, velocity.y);
-		NetworkServer.Spawn(gameObject);
+		var tacoBehaviour = gameObject.GetComponent<TacoBehaviour> ();
+		tacoBehaviour._ownerId = id;
+		NetworkServer.SpawnWithClientAuthority(gameObject, connectionToClient);
 	}
 
 	void Update () {
@@ -149,16 +154,15 @@ public class DougieBehaviour : NetworkBehaviour {
 			transform.rotation = Quaternion.Euler(0,0, 0);
 	}
 
-	 void OnCollisionExit2D(Collision2D coll) {
-	  	if(coll.gameObject.tag=="Platform")
-      	  if (coll.otherCollider == feet)
-         	  states.onair=true;
-        
-    }
-
 	void OnTriggerEnter2D(Collider2D collision) {
-		if(collision.gameObject.tag =="Taco")
-         	CmdReceiveDamage();
+		var gameObject = collision.gameObject;
+
+		if (collision.gameObject.tag == "Taco") {
+			var id = gameObject.GetComponent<TacoBehaviour> ()._ownerId;
+
+			if(id != _networkIdentity.netId.ToString())
+				CmdReceiveDamage();
+		}
     }
 
 	[Command]

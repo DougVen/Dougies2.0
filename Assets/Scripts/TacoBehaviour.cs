@@ -9,6 +9,9 @@ public class TacoBehaviour : NetworkBehaviour {
 	public GameObject explosion;
 	public float despawnTime;
 
+	[SyncVar]
+	public string _ownerId;
+
 	void Start () {
 		start = Time.time;
 		Invoke ("Despawn", despawnTime);
@@ -20,7 +23,21 @@ public class TacoBehaviour : NetworkBehaviour {
 		var explosionInstance = Instantiate (explosion, position, Quaternion.identity);
 	}
 
+	bool IsOwner (GameObject gameObject)
+	{
+		if (gameObject.tag == "Player") {
+			var id = gameObject.GetComponent<PlayerId> ().Value;
+
+			if (id == _ownerId)
+				return true;
+		}
+		return false;
+	}
+
 	void OnTriggerEnter2D(Collider2D collision) {
-		Despawn ();
+
+		var gameObject = collision.gameObject;
+		if(!IsOwner (gameObject))
+			Despawn ();
 	}
 }

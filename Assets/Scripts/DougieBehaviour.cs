@@ -16,10 +16,7 @@ public class DougieBehaviour : NetworkBehaviour {
 	public GameObject taco;
 	public Vector3 position;
 	public PlayerId Id;
-
 	private NetworkIdentity _networkIdentity;
-
-	public int Hp = 3;
 
 	void Awake(){
 		transform = GetComponent<Transform>();
@@ -64,13 +61,28 @@ public class DougieBehaviour : NetworkBehaviour {
 		NetworkServer.SpawnWithClientAuthority(gameObject, connectionToClient);
 	}
 
+	void UpdateAnimation ()
+	{
+		if (BalloonsAnimator != null && BalloonsAnimator.GetInteger ("Hp") != attributes.Hp)
+			BalloonsAnimator.SetInteger ("Hp", attributes.Hp);
+	}		
+
+	void FixedUpdate() {
+		
+		if (!isLocalPlayer)
+			return;
+		
+		Jump();
+		Move();
+	}
+
 	void Update () {
+
+		UpdateAnimation ();
 
 		if (!isLocalPlayer)
 			return;
 
-		Move();
-		Jump();
 		Flip();
 
 		if (states.shooting) 
@@ -162,17 +174,11 @@ public class DougieBehaviour : NetworkBehaviour {
 			var id = gameObject.GetComponent<TacoBehaviour> ()._ownerId;
 
 			if(id != _networkIdentity.netId.ToString())
-				CmdReceiveDamage();
+				attributes.Hp -= 1;
+
+			if (attributes.Hp < 1)
+				Destroy (this.gameObject);
 		}
     }
 
-	[Command]
-    public void CmdReceiveDamage(){
-		attributes.hp -= 1;
-		Hp -= 1;
-		BalloonsAnimator.SetInteger("Hp", Hp);
-	//	Instantiate(balloon, new Vector3 (transform.position.x, transform.position.y + 1, 0), Quaternion.identity);
-		if(attributes.hp == 0)
-			Destroy(gameObject);
-	}  
 }

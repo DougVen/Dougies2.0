@@ -18,7 +18,7 @@ public class TacoBehaviour : NetworkBehaviour {
 	}
 
 	void Despawn() {
-		Destroy (gameObject);
+		NetworkServer.Destroy (gameObject);
 		var position = this.transform.position;
 		var explosionInstance = Instantiate (explosion, position, Quaternion.identity);
 	}

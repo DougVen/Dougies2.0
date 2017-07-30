@@ -7,19 +7,19 @@ public class PlayerId : NetworkBehaviour {
 
 	[SyncVar] 
 	private string _syncValue;
-	public string Value;
+	public string Value = "";
 	private NetworkInstanceId _id;
-	
+
 	void Update () {
 
-		if (Value != "")
+		if (Value != null && Value.Length > 0)
 			return;
 
 		if (isLocalPlayer) {
 			Value = _id.ToString ();
 			CmdTellId (Value);
 		} else 
-			Value = _syncValue;
+			Value = _syncValue;		
 	}
 
 	[Command]

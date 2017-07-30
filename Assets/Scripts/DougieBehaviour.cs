@@ -11,14 +11,15 @@ public class DougieBehaviour : NetworkBehaviour {
 	public Collider2D feet;
 	private DougieAttributes attributes;
 	private DougieStates states;
-	public Animator balloons;
+	public GameObject Balloons;
+	public Animator BalloonsAnimator;
 	public GameObject taco;
 	public Vector3 position;
-	private PlayerId _playerId;
+	public PlayerId Id;
 
 	private NetworkIdentity _networkIdentity;
 
-	public int Balloon_Life = 3;
+	public int Hp = 3;
 
 	void Awake(){
 		transform = GetComponent<Transform>();
@@ -26,7 +27,7 @@ public class DougieBehaviour : NetworkBehaviour {
 	}
 
 	void Start () {
-		_playerId = GetComponent<PlayerId> ();
+		Id = GetComponent<PlayerId> ();
 		states = GetComponent<DougieStates>();
 		attributes= GetComponent<DougieAttributes>();
 		rigidbody = GetComponent<Rigidbody2D>();
@@ -49,13 +50,13 @@ public class DougieBehaviour : NetworkBehaviour {
 		Vector3 offset = transform.position + new Vector3 (horizontalOffset, 0, 0);
 		Vector2 velocity = new Vector2 (speed, 0);
 
-		CmdShoot (offset, velocity, _playerId.Value);
+		CmdShoot (offset, velocity, Id.Value);
 		attributes.nextTacoShot = Time.time + attributes.tacoFireRate;
 		states.shooting = false;
 	}
 
 	[Command]
-	void CmdShoot(Vector3 position, Vector2 velocity, string id){
+	void CmdShoot(Vector3 position, Vector2 velocity, string id) {
 		var gameObject = Instantiate (taco, position, Quaternion.identity);
 		gameObject.GetComponent<Rigidbody2D> ().velocity = new Vector2(velocity.x, velocity.y);
 		var tacoBehaviour = gameObject.GetComponent<TacoBehaviour> ();
@@ -168,8 +169,8 @@ public class DougieBehaviour : NetworkBehaviour {
 	[Command]
     public void CmdReceiveDamage(){
 		attributes.hp -= 1;
-		Balloon_Life -= 1;
-        balloons.SetInteger("Balloon_Life", Balloon_Life);
+		Hp -= 1;
+		BalloonsAnimator.SetInteger("Hp", Hp);
 	//	Instantiate(balloon, new Vector3 (transform.position.x, transform.position.y + 1, 0), Quaternion.identity);
 		if(attributes.hp == 0)
 			Destroy(gameObject);

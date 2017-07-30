@@ -156,14 +156,9 @@ public class DougieBehaviour : NetworkBehaviour {
         
     }
 
-    void OnCollisionEnter2D(Collision2D coll) {
-	  	if(coll.gameObject.tag=="Platform")
-      	  if (coll.otherCollider == feet)
-         	  states.onair=false;
-
-        if(coll.gameObject.tag=="Taco")
+	void OnTriggerEnter2D(Collider2D collision) {
+		if(collision.gameObject.tag =="Taco")
          	CmdReceiveDamage();
-        
     }
 
 	[Command]
